@@ -115,6 +115,53 @@ export const useTypingTest = () => {
 
   const updateTypedText = useCallback((text: string) => {
     setState(prev => {
+      if (!prev.quote) return prev;
+
+      // Auto-start test when user begins typing
+      if (!prev.isActive && !prev.isCompleted && text.length > 0) {
+        const startTime = Date.now();
+        const newState = {
+          ...prev,
+          typedText: text,
+          isActive: true,
+          startTime,
+          timeRemaining: testDurationRef.current,
+        };
+        
+        // Start timer
+        clearTimer();
+        timerRef.current = setInterval(() => {
+          setState(current => {
+            const newTimeRemaining = current.timeRemaining - 1;
+            
+            if (newTimeRemaining <= 0) {
+              return {
+                ...current,
+                timeRemaining: 0,
+                isActive: false,
+                isCompleted: true,
+                endTime: Date.now(),
+              };
+            }
+            
+            return {
+              ...current,
+              timeRemaining: newTimeRemaining,
+            };
+          });
+        }, 1000);
+
+        const comparison = compareTexts(text, prev.quote.text);
+        const newErrors = comparison.errors;
+        const currentIndex = text.length;
+
+        return {
+          ...newState,
+          errors: newErrors,
+          currentIndex,
+        };
+      }
+
       if (!prev.isActive || !prev.quote) return prev;
 
       const comparison = compareTexts(text, prev.quote.text);
@@ -141,7 +188,7 @@ export const useTypingTest = () => {
         currentIndex,
       };
     });
-  }, []);
+  }, [clearTimer]);
 
   const pauseTest = useCallback(() => {
     clearTimer();

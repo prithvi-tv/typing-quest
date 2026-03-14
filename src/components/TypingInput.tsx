@@ -8,6 +8,7 @@ interface TypingInputProps {
   autoFocus?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
+  onFirstKeystroke?: () => void;
 }
 
 export const TypingInput: React.FC<TypingInputProps> = ({
@@ -18,6 +19,7 @@ export const TypingInput: React.FC<TypingInputProps> = ({
   autoFocus = false,
   onFocus,
   onBlur,
+  onFirstKeystroke,
 }) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -28,7 +30,14 @@ export const TypingInput: React.FC<TypingInputProps> = ({
   }, [autoFocus]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange(e.target.value);
+    const newValue = e.target.value;
+    
+    // Trigger auto-start on first keystroke
+    if (value.length === 0 && newValue.length === 1) {
+      onFirstKeystroke?.();
+    }
+    
+    onChange(newValue);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

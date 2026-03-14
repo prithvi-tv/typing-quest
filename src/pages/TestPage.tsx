@@ -24,7 +24,10 @@ export const TestPage: React.FC = () => {
 
   const startNewTest = () => {
     const randomQuote = quotes.getRandom();
+    actions.resetTest();
+    // Set up the quote but don't start the timer yet
     actions.startTest(randomQuote, settings.preferredDuration);
+    actions.pauseTest(); // Immediately pause so it's ready for auto-start
     setShowResults(false);
     setTestResult(null);
   };
@@ -46,12 +49,6 @@ export const TestPage: React.FC = () => {
     actions.updateTypedText(text);
   };
 
-  const handleInputFocus = () => {
-    if (!state.isActive && !state.isCompleted && state.quote) {
-      actions.startTest(state.quote, settings.preferredDuration);
-    }
-  };
-
   useEffect(() => {
     if (state.isCompleted && !showResults) {
       handleTestComplete();
@@ -60,7 +57,9 @@ export const TestPage: React.FC = () => {
 
   useEffect(() => {
     if (!state.quote) {
-      actions.resetTest();
+      const randomQuote = quotes.getRandom();
+      actions.startTest(randomQuote, settings.preferredDuration);
+      actions.pauseTest(); // Set up but don't start timer
     }
   }, []);
 
@@ -75,7 +74,7 @@ export const TestPage: React.FC = () => {
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Typing Speed Test</h2>
             <p className="text-gray-600">
-              Type the quote below as accurately and quickly as possible
+              Start typing the quote below to begin the test automatically
             </p>
           </div>
 
@@ -93,8 +92,7 @@ export const TestPage: React.FC = () => {
                 onChange={handleInputChange}
                 disabled={state.isCompleted}
                 autoFocus={true}
-                onFocus={handleInputFocus}
-                placeholder={state.isActive ? "Keep typing..." : "Click here and start typing to begin the test"}
+                placeholder={state.isActive ? "Keep typing..." : "Start typing to begin the test automatically"}
               />
             </div>
 
@@ -136,12 +134,12 @@ export const TestPage: React.FC = () => {
               </div>
 
               <div className="space-y-3">
-                {!state.isActive && !state.isCompleted && (
+                {!state.isActive && !state.isCompleted && state.typedText.length === 0 && (
                   <button
                     onClick={startNewTest}
                     className="w-full bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 transition-colors font-medium"
                   >
-                    Start New Test
+                    New Quote
                   </button>
                 )}
                 

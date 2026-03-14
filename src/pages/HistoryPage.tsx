@@ -20,7 +20,7 @@ export const HistoryPage: React.FC = () => {
     setResults(allResults);
   };
 
-  const handleSettingsChange = (newSettings: UserSettings) => {
+  const handleSettingsChange = (_newSettings: UserSettings) => {
     // Settings change handler - can be used for future functionality
   };
 

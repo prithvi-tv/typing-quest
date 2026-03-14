@@ -9,7 +9,6 @@ import { TestResult, UserSettings } from '../types/index';
 export const HistoryPage: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [results, setResults] = useState<TestResult[]>([]);
-  const [settings, setSettings] = useState<UserSettings>(() => storage.getSettings());
   const [showAllResults, setShowAllResults] = useState(false);
 
   useEffect(() => {
@@ -22,7 +21,7 @@ export const HistoryPage: React.FC = () => {
   };
 
   const handleSettingsChange = (newSettings: UserSettings) => {
-    setSettings(newSettings);
+    // Settings change handler - can be used for future functionality
   };
 
   const clearAllResults = () => {

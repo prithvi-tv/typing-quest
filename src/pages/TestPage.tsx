@@ -32,7 +32,7 @@ export const TestPage: React.FC = () => {
   const handleTestComplete = () => {
     const result = getTestResult();
     if (result) {
-      const savedResult = saveTestResult();
+      saveTestResult();
       setTestResult(result);
       setShowResults(true);
     }
@@ -60,7 +60,6 @@ export const TestPage: React.FC = () => {
 
   useEffect(() => {
     if (!state.quote) {
-      const randomQuote = quotes.getRandom();
       actions.resetTest();
     }
   }, []);

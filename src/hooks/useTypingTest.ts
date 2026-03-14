@@ -170,6 +170,7 @@ export const useTypingTest = () => {
 
       // Check if test is completed by reaching end of quote
       if (currentIndex >= prev.quote.text.length) {
+        clearTimer();
         return {
           ...prev,
           typedText: text,

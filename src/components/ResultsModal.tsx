@@ -23,7 +23,7 @@ export const ResultsModal: React.FC<ResultsModalProps> = ({
 }) => {
   if (!isOpen || !results) return null;
 
-  const formatCompletionTime = (seconds: number): string => {
+  const formatCompletionTime = (): string => {
     const now = new Date();
     return now.toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -83,7 +83,7 @@ export const ResultsModal: React.FC<ResultsModalProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
                 <span className="text-gray-600">Completed at</span>
-                <span className="font-medium">{formatCompletionTime(results.duration)}</span>
+                <span className="font-medium">{formatCompletionTime()}</span>
               </div>
               
               <div className="flex justify-between items-center py-2 border-b border-gray-100">

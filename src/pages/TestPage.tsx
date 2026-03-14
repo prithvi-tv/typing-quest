@@ -26,7 +26,7 @@ export const TestPage: React.FC = () => {
     const randomQuote = quotes.getRandom();
     actions.resetTest();
     // Set up the quote but don't start the timer yet
-    actions.startTest(randomQuote, settings.preferredDuration);
+    actions.startTest(randomQuote);
     actions.pauseTest(); // Immediately pause so it's ready for auto-start
     setShowResults(false);
     setTestResult(null);
@@ -58,7 +58,7 @@ export const TestPage: React.FC = () => {
   useEffect(() => {
     if (!state.quote) {
       const randomQuote = quotes.getRandom();
-      actions.startTest(randomQuote, settings.preferredDuration);
+      actions.startTest(randomQuote);
       actions.pauseTest(); // Set up but don't start timer
     }
   }, []);
@@ -99,6 +99,9 @@ export const TestPage: React.FC = () => {
             <div className="space-y-6">
               {state.isCompleted && state.startTime && state.endTime && (
                 <Timer
+                  timeRemaining={0}
+                  isActive={false}
+                  totalTime={settings.preferredDuration}
                   isCompleted={true}
                   elapsedTime={(state.endTime - state.startTime) / 1000}
                 />
@@ -161,7 +164,7 @@ export const TestPage: React.FC = () => {
                   </div>
                 )}
 
-                {!state.isActive && state.timeRemaining > 0 && state.typedText.length > 0 && (
+                {!state.isActive && state.startTime && state.typedText.length > 0 && (
                   <button
                     onClick={actions.resumeTest}
                     className="w-full bg-green-600 text-white px-4 py-3 rounded-md hover:bg-green-700 transition-colors font-medium"

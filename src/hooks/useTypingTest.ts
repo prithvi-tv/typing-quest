@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Quote, TestResult } from '../types/index';
 import { calculateTypingStats, compareTexts } from '../utils/typing';
 import { storage } from '../utils/storage';

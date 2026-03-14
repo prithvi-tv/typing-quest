@@ -52,7 +52,7 @@ export const QuoteDisplay: React.FC<QuoteDisplayProps> = ({
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-      <div className="text-lg leading-relaxed font-mono tracking-wide select-none">
+      <div className="text-lg leading-relaxed font-mono tracking-wide select-none break-words overflow-wrap-anywhere">
         {quote.split('').map((char, index) => renderCharacter(char, index))}
       </div>
       

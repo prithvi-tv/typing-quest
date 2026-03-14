@@ -8,7 +8,6 @@ export interface TypingTestState {
   typedText: string;
   isActive: boolean;
   isCompleted: boolean;
-  timeRemaining: number;
   startTime: number | null;
   endTime: number | null;
   errors: number;
@@ -16,7 +15,7 @@ export interface TypingTestState {
 }
 
 export interface TypingTestActions {
-  startTest: (quote: Quote, duration: number) => void;
+  startTest: (quote: Quote) => void;
   resetTest: () => void;
   updateTypedText: (text: string) => void;
   pauseTest: () => void;
@@ -37,7 +36,6 @@ const initialState: TypingTestState = {
   typedText: '',
   isActive: false,
   isCompleted: false,
-  timeRemaining: 0,
   startTime: null,
   endTime: null,
   errors: 0,
@@ -46,18 +44,8 @@ const initialState: TypingTestState = {
 
 export const useTypingTest = () => {
   const [state, setState] = useState<TypingTestState>(initialState);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const testDurationRef = useRef<number>(60);
-
-  const clearTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  }, []);
 
   const completeTest = useCallback(() => {
-    clearTimer();
     const endTime = Date.now();
     
     setState(prev => ({
@@ -66,52 +54,18 @@ export const useTypingTest = () => {
       isCompleted: true,
       endTime,
     }));
-  }, [clearTimer]);
+  }, []);
 
-  const startTimer = useCallback(() => {
-    clearTimer();
-    
-    timerRef.current = setInterval(() => {
-      setState(prev => {
-        const newTimeRemaining = prev.timeRemaining - 1;
-        
-        if (newTimeRemaining <= 0) {
-          return {
-            ...prev,
-            timeRemaining: 0,
-            isActive: false,
-            isCompleted: true,
-            endTime: Date.now(),
-          };
-        }
-        
-        return {
-          ...prev,
-          timeRemaining: newTimeRemaining,
-        };
-      });
-    }, 1000);
-  }, [clearTimer]);
-
-  const startTest = useCallback((quote: Quote, duration: number) => {
-    testDurationRef.current = duration;
-    const startTime = Date.now();
-    
+  const startTest = useCallback((quote: Quote) => {
     setState({
       ...initialState,
       quote,
-      isActive: true,
-      timeRemaining: duration,
-      startTime,
     });
-    
-    startTimer();
-  }, [startTimer]);
+  }, []);
 
   const resetTest = useCallback(() => {
-    clearTimer();
     setState(initialState);
-  }, [clearTimer]);
+  }, []);
 
   const updateTypedText = useCallback((text: string) => {
     setState(prev => {
@@ -125,31 +79,7 @@ export const useTypingTest = () => {
           typedText: text,
           isActive: true,
           startTime,
-          timeRemaining: testDurationRef.current,
         };
-        
-        // Start timer
-        clearTimer();
-        timerRef.current = setInterval(() => {
-          setState(current => {
-            const newTimeRemaining = current.timeRemaining - 1;
-            
-            if (newTimeRemaining <= 0) {
-              return {
-                ...current,
-                timeRemaining: 0,
-                isActive: false,
-                isCompleted: true,
-                endTime: Date.now(),
-              };
-            }
-            
-            return {
-              ...current,
-              timeRemaining: newTimeRemaining,
-            };
-          });
-        }, 1000);
 
         const comparison = compareTexts(text, prev.quote.text);
         const newErrors = comparison.errors;
@@ -170,7 +100,6 @@ export const useTypingTest = () => {
 
       // Check if test is completed by reaching end of quote
       if (currentIndex >= prev.quote.text.length) {
-        clearTimer();
         return {
           ...prev,
           typedText: text,
@@ -189,36 +118,32 @@ export const useTypingTest = () => {
         currentIndex,
       };
     });
-  }, [clearTimer]);
+  }, []);
 
   const pauseTest = useCallback(() => {
-    clearTimer();
     setState(prev => ({
       ...prev,
       isActive: false,
     }));
-  }, [clearTimer]);
+  }, []);
 
   const resumeTest = useCallback(() => {
     setState(prev => {
-      if (prev.isCompleted || prev.timeRemaining <= 0) return prev;
+      if (prev.isCompleted) return prev;
       
-      const newState = {
+      return {
         ...prev,
         isActive: true,
       };
-      
-      startTimer();
-      return newState;
     });
-  }, [startTimer]);
+  }, []);
 
   const getTestResult = useCallback((): TypingTestResult | null => {
     if (!state.quote || !state.startTime) return null;
 
     const actualDuration = state.endTime 
       ? (state.endTime - state.startTime) / 1000
-      : testDurationRef.current - state.timeRemaining;
+      : 0;
 
     const stats = calculateTypingStats(
       state.typedText,
@@ -258,26 +183,12 @@ export const useTypingTest = () => {
     return testResult;
   }, [getTestResult, state.quote]);
 
-  // Effect to handle test completion when time runs out
-  useEffect(() => {
-    if (state.timeRemaining === 0 && state.isActive) {
-      completeTest();
-    }
-  }, [state.timeRemaining, state.isActive, completeTest]);
-
   // Effect to handle test completion when quote is fully typed
   useEffect(() => {
     if (state.isCompleted && state.isActive) {
       completeTest();
     }
   }, [state.isCompleted, state.isActive, completeTest]);
-
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      clearTimer();
-    };
-  }, [clearTimer]);
 
   const actions: TypingTestActions = {
     startTest,

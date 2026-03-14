@@ -97,11 +97,12 @@ export const TestPage: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              <Timer
-                timeRemaining={state.timeRemaining}
-                isActive={state.isActive}
-                totalTime={settings.preferredDuration}
-              />
+              {state.isCompleted && state.startTime && state.endTime && (
+                <Timer
+                  isCompleted={true}
+                  elapsedTime={(state.endTime - state.startTime) / 1000}
+                />
+              )}
 
               <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Live Stats</h3>

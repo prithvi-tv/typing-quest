@@ -23,10 +23,14 @@ export const ResultsModal: React.FC<ResultsModalProps> = ({
 }) => {
   if (!isOpen || !results) return null;
 
-  const formatDuration = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = Math.round(seconds % 60);
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  const formatCompletionTime = (seconds: number): string => {
+    const now = new Date();
+    return now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
   };
 
   const getAccuracyColor = (accuracy: number): string => {
@@ -78,8 +82,8 @@ export const ResultsModal: React.FC<ResultsModalProps> = ({
 
             <div className="space-y-3">
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-gray-600">Duration</span>
-                <span className="font-medium">{formatDuration(results.duration)}</span>
+                <span className="text-gray-600">Completed at</span>
+                <span className="font-medium">{formatCompletionTime(results.duration)}</span>
               </div>
               
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
